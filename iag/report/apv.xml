@@ -73,10 +73,5 @@
 
 
         </template>
-
-        <template id="report_invoice" inherit_id="sale.report_invoice_layouted">
-
-        <t name="lines_layouted" position="replace"/>
-        </template>
     </data>
 </odoo>
