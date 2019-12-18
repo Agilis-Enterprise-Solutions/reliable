@@ -14,8 +14,6 @@
     'data': [
         'report/apv.xml',
         'views/vendor_bills.xml',
-        'report/po.xml',
-        'report/sp.xml'
 
     ],
 	'installable': True,
