@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="vendor_bill_apv_inherit_view" inherit_id="account.report_invoice_document">
+
+            <span t-if="o.type == 'in_invoice'" position="replace"/>
+
+            <div class="row" position="replace"/>
+
+            <h2 position="before">
+                <div class="row">
+                    <div name="invoice_address" class="col-xs-5">
+                        <address t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;], &quot;no_marker&quot;: True}"/>
+                        <div t-if="o.partner_id.vat" class="mt16"><t t-esc="o.company_id.country_id.vat_label or 'TIN'"/>: <span t-field="o.partner_id.vat"/></div>
+                    </div>
+                </div>
+            </h2>
+            
+            
+            <span t-field="o.number" position="before">
+                <span t-if="o.type == 'in_invoice'">Accounts Payable Voucher</span>
+            </span>
+
+            <!-- <table name="invoice_line_table" position="replace"/> -->
+            <xpath expr="//table[@name='invoice_line_table']" position="replace"/>
+
+            <t t-set="display_discount" position="after">
+                <table class="table table-condensed" name="journal_entry_table">
+                    <thead>
+                        <tr>
+                            <th> Account Code </th>
+                            <th> Account Description </th>
+                            <th> Debit </th>
+                            <th> Credit </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr t-foreach="o.move_id.line_ids" t-as="journal_entries">
+                            <td><span t-field="journal_entries.account_id"/></td>
+                            <td><span t-field="journal_entries.name"/></td>
+                            <td><span t-field="journal_entries.debit"/></td>
+                            <td><span t-field="journal_entries.credit"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+
+            
+
+            <p t-if="o.fiscal_position_id.note" position="after">
+                <p style="padding: 10em 0 5em 0;"></p>
+                <table>
+                    <tr>
+                        <td style="width: 30%;"> <strong>Prepared By: </strong>  </td>
+                        <td style="width: 30%;"> <strong>Checked By: </strong>  </td>
+                        <td style="width: 30%;"> <strong>Approved By: </strong>  </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding-top: 5%"> </td>
+                        <td style="padding-top: 5%"> </td>
+                        <td style="padding-top: 5%"> </td>
+                    </tr>
+
+                    <tr>
+                        <td> <span t-field="o.requested_by"/> </td>
+                        <td> <span t-field="o.checked_by"/> </td>
+                        <td> <span t-field="o.approved_by"/> </td>
+                    </tr>
+                </table>
+            </p>
+
+
+        </template>
+
+        <template id="report_invoice" inherit_id="sale.report_invoice_layouted">
+
+        <t name="lines_layouted" position="replace"/>
+        </template>
+    </data>
+</odoo>
