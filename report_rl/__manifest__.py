@@ -9,7 +9,7 @@
     'sequence': 1,
     'version': '1.0',
     'depends': [
-        'base','account','account_accountant'
+        'base','account_accountant'
         ],
     'data': [
         'report/apv.xml',
