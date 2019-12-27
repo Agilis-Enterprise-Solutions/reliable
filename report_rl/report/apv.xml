@@ -74,15 +74,13 @@
                               <td><span t-field="journal_entries.credit"/></td>
                           </tr>
                       </tbody>
-                  </table>
-                  <table class="table table-condensed" name="journal_entry_table_total">
-                      <tbody>
+                      <tfoot style="font-weight: bold;">
                           <tr>
-                              <td width="56%"><b> TOTAL </b></td>
+                              <td>TOTAL</td>
                               <td t-esc="'{0:,.2f}'.format(sum(l.debit for l in o.move_id.line_ids))"/>
                               <td t-esc="'{0:,.2f}'.format(sum(l.credit for l in o.move_id.line_ids))"/>
                           </tr>
-                      </tbody>
+                      </tfoot>
                   </table>
 
                 <p style="padding: 2em 0 2em 0;"></p>
