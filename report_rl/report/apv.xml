@@ -6,14 +6,17 @@
         <t t-call="web.external_layout">
           <t t-set="o" t-value="o.with_context(lang=lang)" />
             <div class="page">
-              <div style="font-size: 1em;">
+              <div style="font-size: 1.1em;">
+                <p style="text-align:left;">
+                    <b><span t-field="o.partner_id"/></b>
+                    <span style="float:right;">
+                        <strong>APV Date:</strong>
+                        <span t-field="o.date_invoice"/>
+                    </span>
+                </p>
                 <div name="invoice_address" class="col-xs-5">
-                  <b><address t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;], &quot;no_marker&quot;: True}"/></b>
+                  <address t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;], &quot;no_marker&quot;: True}"/>
                   <div t-if="o.partner_id.vat" class="mt16"><t t-esc="o.company_id.country_id.vat_label or 'TIN'"/>: <span t-field="o.partner_id.vat"/></div>
-                </div>
-                <div name="apv_date" class="text-right col-sm-8" style="padding: 0 0 2em 5em;">
-                  <strong>APV Date:</strong>
-                  <span t-field="o.date_invoice"/>
                 </div>
               </div>
                 <h2>
@@ -70,10 +73,14 @@
                               <td><span t-field="journal_entries.debit"/></td>
                               <td><span t-field="journal_entries.credit"/></td>
                           </tr>
+                      </tbody>
+                  </table>
+                  <table class="table table-condensed" name="journal_entry_table_total">
+                      <tbody>
                           <tr>
-                              <td><b> TOTAL </b></td>
-                              <td t-esc="sum(l.debit for l in o.move_id.line_ids) "/>
-                              <td t-esc="sum(l.credit for l in o.move_id.line_ids) "/>
+                              <td width="56%"><b> TOTAL </b></td>
+                              <td t-esc="'{0:,.2f}'.format(sum(l.debit for l in o.move_id.line_ids))"/>
+                              <td t-esc="'{0:,.2f}'.format(sum(l.credit for l in o.move_id.line_ids))"/>
                           </tr>
                       </tbody>
                   </table>
