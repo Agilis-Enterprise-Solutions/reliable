@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+      <template id="check_voucher_document">
+        <t t-call="web.external_layout">
+          <t t-set="o" t-value="o.with_context(lang=lang)" />
+            <div class="page">
+              <h3 style="padding: 0 0 1em 0;">
+                <strong>Check Voucher: <span t-field="o.name"/></strong>
+              </h3>
+              <div style="font-size: 1.1em; padding: 0 0 2em 0;">
+                <p style="text-align:left;">
+                    <b><span t-field="o.partner_id"/></b>
+                    <span style="float:right;">
+                        <strong>Payment Date:</strong>
+                        <span t-field="o.payment_date"/>
+                    </span>
+                </p>
+                <div name="invoice_address" class="col-xs-5">
+                  <address t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;], &quot;no_marker&quot;: True}"/>
+                  <div t-if="o.partner_id.vat" class="mt16"><t t-esc="o.company_id.country_id.vat_label or 'TIN'"/>: <span t-field="o.partner_id.vat"/></div>
+                </div>
+              </div>
+
+                <table class="table table-condensed" name="check_voucher_entry_table">
+                    <thead>
+                        <tr>
+                            <th> APV NO</th>
+                            <th> VENDOR REFERENCE </th>
+                            <th> ORIGINAL AMOUNT </th>
+                            <th> DEBIT </th>
+                            <th> CREDIT </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr t-foreach="o.reconciled_invoice_ids" t-as="inv">
+                            <td><span t-field="inv.number"/></td>
+                            <td><span t-field="inv.reference"/></td>
+                            <td class="text-right"><span t-field="inv.amount_total"/></td>
+                            <td class="text-right" t-if="inv.account_id.name == 'Account Payable'"><span t-field="inv.account_id.code"/></td>
+                            <td class="text-right"><span t-field="o.journal_id.default_credit_account_id.code"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+                <p style="padding: 2em 0 0 0;"></p>
+
+                <table class="table table-condensed" name="check_no_table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;"> CREDIT ACCOUNT</th>
+                            <th style="width: 30%;"> CHECK NO </th>
+                            <th style="width: 20%;"> AMOUNT </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td><span t-field="o.journal_id.default_credit_account_id.code"/> <span t-field="o.journal_id.default_credit_account_id.name"/></td>
+                            <td><span t-esc="'{0:,.0f}'.format(o.check_number).replace(',', '')"/></td>
+                            <td class="text-right"><span t-field="o.amount"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="padding: 3em 0 0 0;"></p>
+
+                <table>
+                    <tr>
+                        <td style="width: 30%;"> <strong>Prepared By: </strong>  </td>
+                        <td style="width: 30%;"> <strong>Checked By: </strong>  </td>
+                        <td style="width: 30%;"> <strong>Approved By: </strong>  </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding-top: 5%"> </td>
+                        <td style="padding-top: 5%"> </td>
+                        <td style="padding-top: 5%"> </td>
+                    </tr>
+
+                    <tr>
+                        <td> <span t-field="o.reconciled_invoice_ids.requested_by"/> </td>
+                        <td> <span t-field="o.reconciled_invoice_ids.checked_by"/> </td>
+                        <td> <span t-field="o.reconciled_invoice_ids.approved_by"/> </td>
+                    </tr>
+                </table>
+
+            </div>
+        </t>
+
+      </template>
+
+      <template id="checkvoucher_account">
+        <t t-call="web.html_container">
+          <t t-foreach="docs" t-as="o">
+            <t t-call="report_rl.check_voucher_document" />
+          </t>
+        </t>
+      </template>
+
+      <report
+          id="account_checkvoucher"
+          model="account.payment"
+          string="Check Voucher"
+          report_type="qweb-pdf"
+          name="report_rl.checkvoucher_account"
+          file="report_rl.checkvoucher_account"
+          attachment="(object.state in ('posted','reconciled')) and ('INV'+(object.name or '').replace('/','')+'.pdf')"
+          print_report_name="	'Check Voucher - %s' % (object.name or '',)"
+      />
+
+    </data>
+</odoo>

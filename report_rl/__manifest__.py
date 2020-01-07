@@ -13,6 +13,7 @@
         ],
     'data': [
         'report/apv.xml',
+        'report/check_voucher.xml',
         'views/vendor_bills.xml',
 
     ],
