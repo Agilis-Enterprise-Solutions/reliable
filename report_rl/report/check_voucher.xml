@@ -39,7 +39,7 @@
                             <td><span t-field="inv.number"/></td>
                             <td><span t-field="inv.reference"/></td>
                             <td class="text-right"><span t-field="inv.amount_total"/></td>
-                            <td class="text-right" t-if="inv.account_id.name == 'Account Payable'"><span t-field="inv.account_id.code"/></td>
+                            <td class="text-right"><span t-field="inv.account_id.code"/></td>
                             <td class="text-right"><span t-field="o.journal_id.default_credit_account_id.code"/></td>
                         </tr>
                     </tbody>
