@@ -8,9 +8,9 @@
             <div class="page">
               <div style="font-size: 1.1em; padding: 0 0 2em 0;">
                 <p>
-                    <h4 style="text-align:left;">
+                    <h6 style="text-align:left;">
                         <span t-field="o.partner_id"/>
-                    </h4>
+                    </h6>
                     <span style="float:right;">
                         <strong>APV Date:</strong>
                         <span t-field="o.date_invoice"/>
