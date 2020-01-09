@@ -10,8 +10,10 @@
                 <strong>Check Voucher: <span t-field="o.name"/></strong>
               </h3>
               <div style="font-size: 1.1em; padding: 0 0 2em 0;">
-                <p style="text-align:left;">
-                    <b><span t-field="o.partner_id"/></b>
+                <p>
+                    <h4 style="text-align:left;">
+                        <strong><span t-field="o.partner_id"/></strong>
+                    </h4>
                     <span style="float:right;">
                         <strong>Payment Date:</strong>
                         <span t-field="o.payment_date"/>

@@ -6,9 +6,11 @@
         <t t-call="web.external_layout">
           <t t-set="o" t-value="o.with_context(lang=lang)" />
             <div class="page">
-              <div style="font-size: 1.1em;">
-                <p style="text-align:left;">
-                    <b><span t-field="o.partner_id"/></b>
+              <div style="font-size: 1.1em; padding: 0 0 2em 0;">
+                <p>
+                    <h4 style="text-align:left;">
+                        <span t-field="o.partner_id"/>
+                    </h4>
                     <span style="float:right;">
                         <strong>APV Date:</strong>
                         <span t-field="o.date_invoice"/>
@@ -74,11 +76,11 @@
                               <td><span t-field="journal_entries.credit"/></td>
                           </tr>
                       </tbody>
-                      <tfoot style="font-weight: bold;">
+                      <tfoot style="border: 1px solid black;">
                           <tr>
-                              <td>TOTAL</td>
-                              <td t-esc="'{0:,.2f}'.format(sum(l.debit for l in o.move_id.line_ids))"/>
-                              <td t-esc="'{0:,.2f}'.format(sum(l.credit for l in o.move_id.line_ids))"/>
+                              <th>TOTAL</th>
+                              <th t-esc="'{0:,.2f}'.format(sum(l.debit for l in o.move_id.line_ids))"/>
+                              <th t-esc="'{0:,.2f}'.format(sum(l.credit for l in o.move_id.line_ids))"/>
                           </tr>
                       </tfoot>
                   </table>
