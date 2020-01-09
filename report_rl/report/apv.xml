@@ -76,13 +76,13 @@
                               <td><span t-field="journal_entries.credit"/></td>
                           </tr>
                       </tbody>
-                      <tfoot style="border: 1px solid black;">
+                      <thead>
                           <tr>
                               <th>TOTAL</th>
                               <th t-esc="'{0:,.2f}'.format(sum(l.debit for l in o.move_id.line_ids))"/>
                               <th t-esc="'{0:,.2f}'.format(sum(l.credit for l in o.move_id.line_ids))"/>
                           </tr>
-                      </tfoot>
+                      </thead>
                   </table>
 
                 <p style="padding: 2em 0 2em 0;"></p>
