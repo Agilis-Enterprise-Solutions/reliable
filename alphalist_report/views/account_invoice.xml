@@ -9,9 +9,9 @@
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//sheet/notebook/page/group/group/div/field[@name='tax_line_ids']/tree/field[@name='amount']" position="after">
-                  <field name="nature_of_income"/>
-                  <field name="seq_no"/>
-                  <field name="percentage"/>
+                  <field name="nature_of_income" invisible="1"/>
+                  <field name="seq_no" invisible="1"/>
+                  <field name="percentage" invisible="1"/>
                 </xpath>
             </field>
         </record>
