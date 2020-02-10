@@ -48,7 +48,7 @@ class alphalistxlsxreport(models.AbstractModel):
 
 
 
-        payee = workbook.add_worksheet("DR and FG From WHSE")
+        payee = workbook.add_worksheet("Alphalist of Payees")
 
         payee.set_column('A:A', 10)
         payee.set_column('B:B', 25)
@@ -59,7 +59,6 @@ class alphalistxlsxreport(models.AbstractModel):
         payee.set_column('G:G', 16)
         payee.set_column('H:H', 18)
 
-        payee.merge_range('A1:C1', "RELIABLE INDUSTRIES INC.",left)
         payee.merge_range('A2:C2', "ACCOUNTS PAYABLE SUPPLIER",left)
         payee.merge_range('A3:C3', "ALPHALIST OF PAYEES SUBJECT TO EXPANDED W/ HOLDING TAX",left)
 
@@ -94,6 +93,10 @@ class alphalistxlsxreport(models.AbstractModel):
         noi_total_tax_list = []
 
         for rec in records:
+            context_id = rec._context
+            current_uid= context_id.get('uid')
+            company = rec.env['res.users'].browse(current_uid)
+            payee.merge_range('A1:C1', company.company_id.name,left)
             date_from = "From: " + str(rec.date_from)
             date_to = "To: " + str(rec.date_to)
             payee.write(3, 1, date_from, left)
@@ -117,7 +120,7 @@ class alphalistxlsxreport(models.AbstractModel):
                                                     tax.name,
                                                     tax.nature_of_income,
                                                     tax.base,
-                                                    tax.percentage,
+                                                    abs(tax.percentage),
                                                     tax.amount_total
                                                      ])
 
