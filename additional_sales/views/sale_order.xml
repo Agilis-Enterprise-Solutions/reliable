@@ -26,10 +26,21 @@
           </field>
           <field name="origin" position="after">
             <field name="client_order_ref" readonly="1"/>
-            <field name="dr_no" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
+            <field name="dr_no" required="1" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
             <field name="dr_duplicate" invisible="1"/>
           </field>
         </field>
+      </record>
+
+      <record id="InheritStockPicking_inherit_tree" model="ir.ui.view">
+          <field name="name">stock.picking.tree</field>
+          <field name="model">stock.picking</field>
+          <field name="inherit_id" ref="stock.vpicktree"/>
+          <field name="arch" type="xml">
+              <xpath expr="//field[@name='origin']" position="after">
+                  <field name="dr_no"/>
+              </xpath>
+          </field>
       </record>
 
     </data>

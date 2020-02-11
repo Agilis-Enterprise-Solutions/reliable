@@ -24,6 +24,11 @@ class InheritStockPicking(models.Model):
     dr_no = fields.Char("DR No.")
     dr_duplicate = fields.Boolean("Checker", default=False)
 
+    @api.model
+    def create(self, vals):
+        res = super(InheritStockPicking, self).create(vals)
+        res.dr_no = False
+        return res
     @api.onchange("dr_no")
     def _check_dr_duplicate(self):
         if self.dr_no:
