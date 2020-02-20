@@ -58,6 +58,21 @@
       </field>
     </record>
 
+    <record id="AccountPrintWithholdingTax_view_tree" model="ir.ui.view">
+      <field name="name">AccountPrintWithholdingTax.tree</field>
+      <field name="model">account.withholding.tax</field>
+      <field name="arch" type="xml">
+        <tree string="Withholding Tax 2307">
+          <field name="name"/>
+          <field name="date_from"/>
+          <field name="date_to"/>
+          <field name="partner_id"/>
+          <field name="invoice_id"/>
+          <field name="state"/>
+        </tree>
+      </field>
+    </record>
+
     <record id="AccountPrintWithholdingTax_action_form" model="ir.actions.act_window">
       <field name="name">Withholding Tax 2307</field>
       <field name="res_model">account.withholding.tax</field>
