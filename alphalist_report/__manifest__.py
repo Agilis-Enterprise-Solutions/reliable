@@ -2,8 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    'name': "Customization Report",
-    'summary': 'ALPHALIST OF PAYEES REPORT',
+    'name': "ALPHALIST OF PAYEES REPORT",
+    'summary': 'Customized Report',
     'category': 'Accounting',
     'author': 'Ralf Cabarogias',
     'sequence': 1,
