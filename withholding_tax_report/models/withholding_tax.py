@@ -11,7 +11,7 @@ class AccountPrintWithholdingTax(models.TransientModel):
     _description = "Print Withholding Tax"
 
 
-    name = fields.Char("Ref", readonly=True)
+    name = fields.Char("Ref", readonly=True, store=True)
     date_from = fields.Date("From", required=True)
     date_to = fields.Date("To", required=True)
     partner_id = fields.Many2one('res.partner',"Payee's Name", required=True)
@@ -25,7 +25,8 @@ class AccountPrintWithholdingTax(models.TransientModel):
         ('generate', 'Generated'),
     ], string="Status", default="draft", readonly=True, copy=False)
 
-    withholding_ids = fields.One2many('account.withholding.tax.lines','withholding_id')
+    withholding_ids = fields.One2many('account.withholding.tax.lines','withholding_id',
+                                      store=True)
 
     @api.onchange('invoice_id')
     def _duplicate_invoice(self):
@@ -65,14 +66,18 @@ class AccountPrintWithholdingTax(models.TransientModel):
         for i in self:
             if i.partner_id.vat:
                 branch_code = str(i.partner_id.vat[-3:])
-            address = '%s %s %s'%(i.partner_id.street, i.partner_id.street2, i.partner_id.city)
+            address = '%s %s %s'%(i.partner_id.street if i.partner_id.street else "",
+                                  i.partner_id.street2 if i.partner_id.street2 else "",
+                                  i.partner_id.city if i.partner_id.city else "")
+            tax_id = [tax.name for tax in i.invoice_id.tax_line_ids][0]
+            tax = self.env['account.tax'].search([('name', '=', str(tax_id))])
             val= {
                 'date' : date.today(),
                 'vendor_tin' : i.partner_id.vat,
                 'branch_code' : branch_code,
                 'company_name' : i.partner_id.name,
                 'address' : address,
-                'tax_id' : [tax.name for tax in i.invoice_id.tax_line_ids][0],
+                'tax_id' : tax.id,
                 'base_amount' : [tax.base for tax in i.invoice_id.tax_line_ids][0],
                 'ewt_rate' : [tax.percentage for tax in i.invoice_id.tax_line_ids][0],
                 'tax_amount': [tax.amount_total for tax in i.invoice_id.tax_line_ids][0]
@@ -93,7 +98,7 @@ class AccountPrintWithholdingTaxLines(models.TransientModel):
     branch_code = fields.Char('Branch Code')
     company_name = fields.Char('Company Name')
     address = fields.Text('Address')
-    tax_id = fields.Char('ATC')
+    tax_id = fields.Many2one('account.tax','ATC', store=True)
     base_amount = fields.Char('Base Amount')
     ewt_rate = fields.Char('EWT Rate')
     tax_amount = fields.Char('Tax Amount')
