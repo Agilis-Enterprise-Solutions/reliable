@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+
+    <record id="AccountPrintWithholdingTax_view_form" model="ir.ui.view">
+      <field name="name">AccountPrintWithholdingTax.form</field>
+      <field name="model">account.withholding.tax</field>
+      <field name="arch" type="xml">
+        <form string="Withholding Tax Form 2307">
+					<header>
+						<button name="generate_withholding_tax" string="Generate Withholding Tax" class="oe_highlight" type="object"/>
+            <field name="state" widget="statusbar"/>
+					</header>
+					<sheet>
+						<group>
+							<group>
+								<field name="name" readonly="1"/>
+                <label for="date_from" string="Date Range"/>
+                <div>
+                  <field name="date_from" class="oe_inline"/>
+                  <string> - </string>
+                  <field name="date_to" class="oe_inline"/>
+                </div>
+							</group>
+							<group>
+								<field name="partner_id"/>
+                <field name="invoice_id"
+                  domain="[('partner_id','=',partner_id),
+                            ('type','=','in_invoice'),
+                            ('date_invoice','&gt;=',date_from),
+                            ('date_invoice','&lt;=',date_to)]"/>
+                <field name="representative_id"/>
+							</group>
+						</group>
+						<group string="Withholdings">
+							<p>
+								To Print this in BIR 2307 format upload the downloaded file in
+								<a href="https://bir-excel-uploader.com/excel-file-to-bir-dat-format/#bir-form-2307">bir-excel-uploader.com</a>
+							</p>
+							<newline/>
+							<field name="withholding_ids" nolabel="1" readonly="1">
+								<tree string="Withhoding Tax 2307" editable="bottom">
+									<field name="withholding_id" invisible="1"/>
+									<field name="date"/>
+									<field name="vendor_tin"/>
+									<field name="branch_code"/>
+									<field name="company_name"/>
+									<field name="address"/>
+									<field name="tax_id"/>
+									<field name="base_amount"/>
+									<field name="ewt_rate"/>
+									<field name="tax_amount"/>
+								</tree>
+							</field>
+						</group>
+					</sheet>
+				</form>
+      </field>
+    </record>
+
+    <record id="AccountPrintWithholdingTax_action_form" model="ir.actions.act_window">
+      <field name="name">Withholding Tax 2307</field>
+      <field name="res_model">account.withholding.tax</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <menuitem
+      id="AccountPrintWithholdingTax_menu"
+      name="Withholding Tax 2307"
+      parent="account.account_reports_management_menu"
+      action="AccountPrintWithholdingTax_action_form"
+      sequence="0"/>
+
+  </data>
+</odoo>
