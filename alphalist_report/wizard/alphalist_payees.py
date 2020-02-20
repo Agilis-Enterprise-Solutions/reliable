@@ -108,21 +108,25 @@ class alphalistxlsxreport(models.AbstractModel):
                     sequence_list.append(seq.seq_no)
 
             invoices_tax = rec.env['account.invoice.tax'].search([])
+
             alpha_dict = {seq: [] for seq in sequence_list}
             for seq in sequence_list:
                 for tax in invoices_tax:
-                    if seq == tax.seq_no and tax.invoice_id.state != 'draft':
-                        if (tax.invoice_id.date_invoice >= rec.date_from
-                            and tax.invoice_id.date_invoice <= rec.date_to):
-                            alpha_dict[seq].append([tax.seq_no,
-                                                    tax.invoice_id.partner_id.vat,
-                                                    tax.invoice_id.partner_id.name,
-                                                    tax.name,
-                                                    tax.nature_of_income,
-                                                    tax.base,
-                                                    abs(tax.percentage),
-                                                    tax.amount_total
-                                                     ])
+                    refund = self.env['account.invoice'].search([
+                        ('origin','=',tax.invoice_id.number)])
+                    if not refund:
+                        if seq == tax.seq_no and (tax.invoice_id.state not in ('draft','cancel')):
+                            if (tax.invoice_id.date_invoice >= rec.date_from
+                                and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False):
+                                alpha_dict[seq].append([tax.seq_no,
+                                                        tax.invoice_id.partner_id.vat,
+                                                        tax.invoice_id.partner_id.name,
+                                                        tax.name,
+                                                        tax.nature_of_income,
+                                                        tax.base,
+                                                        abs(tax.percentage),
+                                                        tax.amount_total
+                                                         ])
 
             alpha_dict={key:value for key,value in alpha_dict.items() if value}
             alpha_list = [value for value in alpha_dict.values() if value]
