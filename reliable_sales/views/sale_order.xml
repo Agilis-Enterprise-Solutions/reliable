@@ -24,9 +24,15 @@
           <field name="origin" position="attributes">
             <attribute name="readonly">"1"</attribute>
           </field>
+          <field name="backorder_id" position="after">
+            <field name="check_out_by" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
+            <field name="countersigned_by" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
+          </field>
           <field name="origin" position="after">
             <field name="client_order_ref" readonly="1"/>
             <field name="dr_no" required="1" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
+            <field name="delivered_by" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
+            <field name="truck_no" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
             <field name="dr_duplicate" invisible="1"/>
           </field>
         </field>

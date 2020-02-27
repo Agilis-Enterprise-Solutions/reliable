@@ -23,6 +23,10 @@ class InheritStockPicking(models.Model):
     client_order_ref = fields.Char("Customer Reference")
     dr_no = fields.Char("DR No.")
     dr_duplicate = fields.Boolean("Checker", default=False)
+    check_out_by = fields.Char("Check out By")
+    countersigned_by = fields.Char("Countersigned By")
+    delivered_by = fields.Char("Delivered By")
+    truck_no = fields.Char("Truck No.")
 
     @api.model
     def create(self, vals):
