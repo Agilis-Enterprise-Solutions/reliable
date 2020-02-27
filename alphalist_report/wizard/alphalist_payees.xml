@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+      <report
+        id="alphalistxlsxreport"
+        model="account.alphalist.payees"
+        string="Print to XLSX"
+        report_type="xlsx"
+        name="report_rl.alphalistxlsxreport"
+        file="Alphalist of Payees"
+        attachment_use="False"
+        menu="False"
+        />
+
+        <record model="ir.ui.view" id="AccountPrintAlphalistPayees_form">
+            <field name="name">AccountPrintAlphalistPayees.form</field>
+            <field name="model">account.alphalist.payees</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Confirm dialog">
+                    <field name="msg" readonly="1" />
+                    <group>
+                      <group>
+                        <field name="date_from" placeholder="Choose a Date" required="1"/>
+                      </group>
+                      <group>
+                        <field name="date_to" placeholder="Choose a Date" required="1"/>
+                      </group>
+                    </group>
+                    <footer>
+                        <button class="oe_highlight" type="action"
+                          name="%(alphalistxlsxreport)d" string="PRINT (XLSX)"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="AccountAlphalistPayees_action_form">
+        	<field name="name">Alphalist of Payees</field>
+        	<field name="res_model">account.alphalist.payees</field>
+        	<field name="view_type">form</field>
+        	<field name="view_mode">form</field>
+        	<field name="target">new</field>
+        </record>
+
+        <menuitem
+          id="AccountAlphalistPayees_menu"
+          name="Alphalist of Payees"
+          parent="account.account_reports_management_menu"
+          action="AccountAlphalistPayees_action_form"
+          sequence="0"/>
+
+    </data>
+</odoo>
