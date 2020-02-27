@@ -10,3 +10,8 @@ class InheritAccountInvoiceValue(models.Model):
     _inherit="account.invoice"
 
     dr_no = fields.Char(string="DR No.")
+
+class AccountPaymentOfficialReceipt(models.Model):
+    _inherit="account.payment"
+
+    official_receipt_no = fields.Char(string="Official Receipt No.")
