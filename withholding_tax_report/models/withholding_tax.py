@@ -69,20 +69,38 @@ class AccountPrintWithholdingTax(models.TransientModel):
             address = '%s %s %s'%(i.partner_id.street if i.partner_id.street else "",
                                   i.partner_id.street2 if i.partner_id.street2 else "",
                                   i.partner_id.city if i.partner_id.city else "")
-            tax_id = [tax.name for tax in i.invoice_id.tax_line_ids][0]
-            tax = self.env['account.tax'].search([('name', '=', str(tax_id))])
-            val= {
-                'date' : date.today(),
-                'vendor_tin' : i.partner_id.vat,
-                'branch_code' : branch_code,
-                'company_name' : i.partner_id.name,
-                'address' : address,
-                'tax_id' : tax.id,
-                'base_amount' : [tax.base for tax in i.invoice_id.tax_line_ids][0],
-                'ewt_rate' : [tax.percentage for tax in i.invoice_id.tax_line_ids][0],
-                'tax_amount': [tax.amount_total for tax in i.invoice_id.tax_line_ids][0]
-                }
-            data.append([0, 0, val])
+            # tax_id = [tax.name for tax in i.invoice_id.tax_line_ids][0]
+            # tax = self.env['account.tax'].search([('name', '=', str(tax_id))])
+            # val= {
+            #     'date' : date.today(),
+            #     'vendor_tin' : i.partner_id.vat,
+            #     'branch_code' : branch_code,
+            #     'company_name' : i.partner_id.name,
+            #     'address' : address,
+            #     'tax_id' : tax.id,
+            #     'base_amount' : [tax.base for tax in i.invoice_id.tax_line_ids][0],
+            #     'ewt_rate' : [tax.percentage for tax in i.invoice_id.tax_line_ids][0],
+            #     'tax_amount': [tax.amount_total for tax in i.invoice_id.tax_line_ids][0]
+            #     }
+            # data.append([0, 0, val])
+
+            tax_id = [tax.name if tax.nature_of_income else tax.nature_of_income for tax in i.invoice_id.tax_line_ids]
+            tax_ids = self.env['account.tax'].search([])
+            for tax in tax_id:
+                for x in tax_ids:
+                    if tax == x.name:
+                        val= {
+                            'date' : date.today(),
+                            'vendor_tin' : i.partner_id.vat,
+                            'branch_code' : branch_code,
+                            'company_name' : i.partner_id.name,
+                            'address' : address,
+                            'tax_id' : x.id,
+                            'base_amount' : [tax.base for tax in i.invoice_id.tax_line_ids][0],
+                            'ewt_rate' : [abs(tax.percentage) for tax in i.invoice_id.tax_line_ids][0],
+                            'tax_amount': [tax.amount_total for tax in i.invoice_id.tax_line_ids][0]
+                            }
+                        data.append([0, 0, val])
 
         return self.write({'withholding_ids': data,
                            'state': 'generate'})
