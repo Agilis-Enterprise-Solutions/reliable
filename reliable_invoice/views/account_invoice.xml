@@ -9,7 +9,11 @@
       <field name="inherit_id" ref="account.invoice_form"/>
       <field name="arch" type="xml">
         <xpath expr="//page[@name='other_info']//field[@name='name']" position='after'>
-          <field name="dr_no" />
+          <field name="dr_no" attrs="{'readonly': [('state', 'in', ['paid','cancel'])]}"/>
+        </xpath>
+        <xpath expr="//page[@name='other_info']//field[@name='partner_bank_id']" position='after'>
+          <field name="prepared_by" attrs="{'readonly': [('state', 'in', ['paid','cancel'])]}"/>
+          <field name="checked_by" attrs="{'readonly': [('state', 'in', ['paid','cancel'])]}"/>
         </xpath>
       </field>
     </record>

@@ -11,6 +11,8 @@ class InheritAccountInvoiceValue(models.Model):
     _inherit="account.invoice"
 
     dr_no = fields.Char(string="DR No.")
+    prepared_by = fields.Char(string="Prepared By")
+    checked_by = fields.Char(string="Checked By")
 
 class AccountPaymentOfficialReceipt(models.Model):
     _inherit="account.payment"
