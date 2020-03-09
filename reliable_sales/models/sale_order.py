@@ -27,6 +27,7 @@ class InheritStockPicking(models.Model):
     countersigned_by = fields.Char("Countersigned By")
     delivered_by = fields.Char("Delivered By")
     truck_no = fields.Char("Truck No.")
+    job_no = fields.Char("Job No.")
 
     @api.model
     def create(self, vals):
