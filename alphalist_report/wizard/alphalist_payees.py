@@ -112,10 +112,25 @@ class alphalistxlsxreport(models.AbstractModel):
             alpha_dict = {seq: [] for seq in sequence_list}
             for seq in sequence_list:
                 for tax in invoices_tax:
+                    if seq == tax.seq_no and (tax.invoice_id.state not in ('draft','cancel')):
+                        if (tax.invoice_id.date_invoice >= rec.date_from
+                            and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False):
+                            alpha_dict[seq].append([tax.seq_no,
+                                                    tax.invoice_id.partner_id.vat,
+                                                    tax.invoice_id.partner_id.name,
+                                                    tax.name,
+                                                    tax.nature_of_income,
+                                                    tax.base,
+                                                    abs(tax.percentage),
+                                                    tax.amount_total
+                                                     ])
                     refund = self.env['account.invoice'].search([
-                        ('origin','=',tax.invoice_id.number)])
-                    if not refund:
-                        if seq == tax.seq_no and (tax.invoice_id.state not in ('draft','cancel')):
+                        ('origin','=',tax.invoice_id.number),
+                        ('origin','!=',False)])
+                    if refund:
+                        if (refund.origin == tax.invoice_id.number and
+                            refund.partner_id.name == tax.invoice_id.partner_id.name and
+                            seq == tax.seq_no and tax.invoice_id.state not in ('draft','cancel')):
                             if (tax.invoice_id.date_invoice >= rec.date_from
                                 and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False):
                                 alpha_dict[seq].append([tax.seq_no,
@@ -123,7 +138,7 @@ class alphalistxlsxreport(models.AbstractModel):
                                                         tax.invoice_id.partner_id.name,
                                                         tax.name,
                                                         tax.nature_of_income,
-                                                        tax.base,
+                                                        '('+str(tax.base)+')',
                                                         abs(tax.percentage),
                                                         tax.amount_total
                                                          ])
@@ -137,9 +152,13 @@ class alphalistxlsxreport(models.AbstractModel):
 
             for past,present,future in previous_and_next(alpha_list_new):
                 payee.write_row(row, column, present, content)
-                total_base_tax += present[5]
+                if isinstance(present[5],str):
+                    total_base_tax = total_base_tax - past[5]
+                    grand_base_tax = grand_base_tax - past[5]
+                else:
+                    total_base_tax += present[5]
+                    grand_base_tax += present[5]
                 total_amount_tax += present[7]
-                grand_base_tax += present[5]
                 grand_amount_tax += present[7]
                 row+=1
                 try:
