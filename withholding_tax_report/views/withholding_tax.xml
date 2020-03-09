@@ -2,6 +2,30 @@
 <odoo>
   <data>
 
+    <!-- Inherit Form view -->
+    <!-- <record id="ResPartnerWithholding_form" model="ir.ui.view">
+      <field name="name">ResPartnerWithholding.form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        <field name="vat" position="after">
+          <field name="pota"/>
+        </field>
+      </field>
+    </record> -->
+
+    <!-- Inherit Form view -->
+    <!-- <record id="AccountInvoiceWithholding_form" model="ir.ui.view">
+      <field name="name">AccountInvoiceWithholding.form</field>
+      <field name="model">account.invoice</field>
+      <field name="inherit_id" ref="account.invoice_supplier_form"/>
+      <field name="arch" type="xml">
+        <field name="vendor_bill_id" position="after">
+          <field name="pota"/>
+        </field>
+      </field>
+    </record> -->
+
     <record id="AccountPrintWithholdingTax_view_form" model="ir.ui.view">
       <field name="name">AccountPrintWithholdingTax.form</field>
       <field name="model">account.withholding.tax</field>
@@ -24,7 +48,7 @@
 							</group>
 							<group>
 								<field name="partner_id"/>
-                <field name="invoice_id"
+                <field name="invoice_id" widget="many2many_tags"
                   domain="[('partner_id','=',partner_id),
                             ('type','=','in_invoice'),
                             ('date_invoice','&gt;=',date_from),
@@ -39,8 +63,8 @@
 							</p>
 							<newline/>
 							<field name="withholding_ids" nolabel="1" readonly="1">
-								<tree string="Withhoding Tax 2307" editable="bottom">
-									<field name="withholding_id" invisible="1"/>
+								<tree string="Withhoding Tax 2307" editable="top">
+									<field name="withholding_id_line" invisible="1"/>
 									<field name="date"/>
 									<field name="vendor_tin"/>
 									<field name="branch_code"/>
