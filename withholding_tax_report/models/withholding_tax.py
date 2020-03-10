@@ -85,7 +85,7 @@ class AccountPrintWithholdingTax(models.Model):
                             'address' : address,
                             'tax_id' : tax_id.id,
                             'base_amount' : x.base,
-                            'ewt_rate' : abs(x.amount),
+                            'ewt_rate' : abs(x.percentage),
                             'tax_amount': x.amount_total
                             }
                         data.append([0, 0, val])
