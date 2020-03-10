@@ -27,6 +27,7 @@
           <field name="backorder_id" position="after">
             <field name="check_out_by" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
             <field name="countersigned_by" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
+            <field name="job_no" attrs="{'readonly': [('state', 'in', ['done','cancel'])]}"/>
           </field>
           <field name="origin" position="after">
             <field name="client_order_ref" readonly="1"/>
@@ -45,6 +46,7 @@
           <field name="arch" type="xml">
               <xpath expr="//field[@name='origin']" position="after">
                   <field name="dr_no"/>
+                  <field name="client_order_ref" />
               </xpath>
           </field>
       </record>
