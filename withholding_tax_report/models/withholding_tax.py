@@ -30,21 +30,6 @@ class AccountPrintWithholdingTax(models.Model):
     withholding_ids = fields.One2many('account.withholding.tax.lines','withholding_id_line',
                                       store=True)
 
-    # @api.onchange('invoice_id')
-    # def _duplicate_invoice(self):
-    #     if self.invoice_id:
-    #         duplicate = self.search([('invoice_id', '=', self.invoice_id.id),
-    #                                  ('id', '!=', self._origin.id),
-    #                                  ('state', '=', 'generate')])
-    #         if duplicate:
-    #             return {
-    #                 'warning': {
-    #                     'title': "Duplicate Entry",
-    #                     'message': """This Invoice had been already Generated.
-    #                     Please Check the other records for Reference"""
-    #                 }
-    #             }
-
     @api.model
     def create(self, vals):
         vals['date'] = date.today()
@@ -56,42 +41,46 @@ class AccountPrintWithholdingTax(models.Model):
         for i in self.withholding_ids:
             i.unlink()
 
-        data = []
-        branch_code = ""
         for i in self:
             for invoice in i.invoice_id:
-                duplicate = self.search([('invoice_id', '=', invoice.id),
-                                         ('id', '!=', self.id),
-                                         ('state', '=', 'generate')])
-                if duplicate:
-                    raise UserError('''This Invoice had been already Generated.
-                    Please Check the other records for Reference''')
+                _logger.info("\n\n\nValue %s\n\n\n"%(invoice.refund))
 
-                for x in invoice.tax_line_ids:
-                    if i.partner_id.vat:
-                        branch_code = str(i.partner_id.vat[-3:])
-                    address = '%s %s %s'%(i.partner_id.street if i.partner_id.street else "",
-                                          i.partner_id.street2 if i.partner_id.street2 else "",
-                                          i.partner_id.city if i.partner_id.city else "")
-
-                    tax_id = self.env['account.tax'].search([('name','=',x.name),
-                                                             ('nature_of_income','!=',False)])
-                    if tax_id:
-                        val= {
-                            'date' : date.today(),
-                            'vendor_tin' : invoice.partner_id.vat,
-                            'branch_code' : branch_code,
-                            'company_name' : i.partner_id.name,
-                            'address' : address,
-                            'tax_id' : tax_id.id,
-                            'base_amount' : x.base,
-                            'ewt_rate' : abs(x.percentage),
-                            'tax_amount': x.amount_total
-                            }
-                        data.append([0, 0, val])
-
-        return self.write({'withholding_ids': data,
-                           'state': 'generate'})
+        # data = []
+        # branch_code = ""
+        # for i in self:
+        #     for invoice in i.invoice_id:
+        #         duplicate = self.search([('invoice_id', '=', invoice.id),
+        #                                  ('id', '!=', self.id),
+        #                                  ('state', '=', 'generate')])
+        #         if duplicate:
+        #             raise UserError('''This Invoice had been already Generated.
+        #             Please Check the other records for Reference''')
+        #
+        #         for x in invoice.tax_line_ids:
+        #             if i.partner_id.vat:
+        #                 branch_code = str(i.partner_id.vat[-3:])
+        #             address = '%s %s %s'%(i.partner_id.street if i.partner_id.street else "",
+        #                                   i.partner_id.street2 if i.partner_id.street2 else "",
+        #                                   i.partner_id.city if i.partner_id.city else "")
+        #
+        #             tax_id = self.env['account.tax'].search([('name','=',x.name),
+        #                                                      ('nature_of_income','!=',False)])
+        #             if tax_id:
+        #                 val= {
+        #                     'date' : date.today(),
+        #                     'vendor_tin' : invoice.partner_id.vat,
+        #                     'branch_code' : branch_code,
+        #                     'company_name' : i.partner_id.name,
+        #                     'address' : address,
+        #                     'tax_id' : tax_id.id,
+        #                     'base_amount' : x.base,
+        #                     'ewt_rate' : abs(x.percentage),
+        #                     'tax_amount': x.amount_total
+        #                     }
+        #                 data.append([0, 0, val])
+        #
+        # return self.write({'withholding_ids': data,
+        #                    'state': 'generate'})
 
 
 class AccountPrintWithholdingTaxLines(models.Model):

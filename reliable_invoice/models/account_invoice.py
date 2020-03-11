@@ -13,6 +13,16 @@ class InheritAccountInvoiceValue(models.Model):
     dr_no = fields.Char(string="DR No.")
     prepared_by = fields.Char(string="Prepared By")
     checked_by = fields.Char(string="Checked By")
+    refund_bool = fields.Boolean(compute='_compute_refund_bool', string='Refund', store=True)
+
+    @api.multi
+    @api.depends("number")
+    def _compute_refund_bool(self):
+        for s in self:
+            refund = self.search([('origin', '=', s.number)])
+            if refund:
+                s.refund_bool = True
+
 
 class AccountPaymentOfficialReceipt(models.Model):
     _inherit="account.payment"
