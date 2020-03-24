@@ -2,30 +2,6 @@
 <odoo>
   <data>
 
-    <!-- Inherit Form view -->
-    <!-- <record id="ResPartnerWithholding_form" model="ir.ui.view">
-      <field name="name">ResPartnerWithholding.form</field>
-      <field name="model">res.partner</field>
-      <field name="inherit_id" ref="base.view_partner_form"/>
-      <field name="arch" type="xml">
-        <field name="vat" position="after">
-          <field name="pota"/>
-        </field>
-      </field>
-    </record> -->
-
-    <!-- Inherit Form view -->
-    <!-- <record id="AccountInvoiceWithholding_form" model="ir.ui.view">
-      <field name="name">AccountInvoiceWithholding.form</field>
-      <field name="model">account.invoice</field>
-      <field name="inherit_id" ref="account.invoice_supplier_form"/>
-      <field name="arch" type="xml">
-        <field name="vendor_bill_id" position="after">
-          <field name="pota"/>
-        </field>
-      </field>
-    </record> -->
-
     <record id="AccountPrintWithholdingTax_view_form" model="ir.ui.view">
       <field name="name">AccountPrintWithholdingTax.form</field>
       <field name="model">account.withholding.tax</field>
@@ -51,6 +27,7 @@
                 <field name="invoice_id" widget="many2many_tags"
                   domain="[('partner_id','=',partner_id),
                             ('type','=','in_invoice'),
+                            ('refund_bool','!=',True),
                             ('date_invoice','&gt;=',date_from),
                             ('date_invoice','&lt;=',date_to)]"/>
                 <field name="representative_id"/>

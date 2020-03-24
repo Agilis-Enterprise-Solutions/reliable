@@ -30,21 +30,6 @@ class AccountPrintWithholdingTax(models.Model):
     withholding_ids = fields.One2many('account.withholding.tax.lines','withholding_id_line',
                                       store=True)
 
-    # @api.onchange('invoice_id')
-    # def _duplicate_invoice(self):
-    #     if self.invoice_id:
-    #         duplicate = self.search([('invoice_id', '=', self.invoice_id.id),
-    #                                  ('id', '!=', self._origin.id),
-    #                                  ('state', '=', 'generate')])
-    #         if duplicate:
-    #             return {
-    #                 'warning': {
-    #                     'title': "Duplicate Entry",
-    #                     'message': """This Invoice had been already Generated.
-    #                     Please Check the other records for Reference"""
-    #                 }
-    #             }
-
     @api.model
     def create(self, vals):
         vals['date'] = date.today()
