@@ -17,6 +17,30 @@ class InheritSaleOrder(models.Model):
             })
         return res
 
+    @api.onchange("client_order_ref")
+    def client_ref_duplicate(self):
+        if self.client_order_ref:
+            client_order = self.search([('client_order_ref', '=', self.client_order_ref),
+                                     ('id','!=',self._origin.id)])
+            _logger.info("\n\n\nPOTA %s\n\n\n"%(client_order))
+            if client_order:
+                return {
+                    'warning': {
+                        'title': "Duplicate Entry",
+                        'message': "Client Order Reference has a Duplicate. Please Check the other Sale Order for Reference"
+                    }
+                }
+
+    @api.model
+    def create(self, vals):
+        res = super(InheritSaleOrder, self).create(vals)
+        for i in res:
+            client_order = i.search([('client_order_ref', '=', i.client_order_ref),
+                                     ('id','!=',i.id)])
+            if client_order:
+                raise UserError("Client Order Reference has a Duplicate. Please Check the other Sale Order for Reference")
+        return res
+
 class InheritStockPicking(models.Model):
     _inherit='stock.picking'
 
