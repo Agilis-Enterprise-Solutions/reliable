@@ -22,7 +22,6 @@ class InheritSaleOrder(models.Model):
         if self.client_order_ref:
             client_order = self.search([('client_order_ref', '=', self.client_order_ref),
                                      ('id','!=',self._origin.id)])
-            _logger.info("\n\n\nPOTA %s\n\n\n"%(client_order))
             if client_order:
                 return {
                     'warning': {
