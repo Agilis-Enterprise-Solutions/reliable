@@ -78,16 +78,6 @@ class alphalistxlsxreport(models.AbstractModel):
         row = 7
         column = 0
 
-        total_base_tax_sup = 0
-        total_wheld_tax_sup = 0
-        total_base_tax_ser = 0
-        total_wheld_tax_ser = 0
-        total_base_tax_prof = 0
-        total_wheld_tax_prof = 0
-        total_base_tax_bro = 0
-        total_wheld_tax_bro = 0
-
-
         sequence_list = []
         vendor_name = []
         total_base_tax = 0
@@ -109,54 +99,48 @@ class alphalistxlsxreport(models.AbstractModel):
 
             invoices_tax = rec.env['account.invoice.tax'].search([])
 
-            sequence = rec.env['account.tax'].search([])
-            for seq in sequence:
-                if seq.seq_no:
-                    sequence_list.append(seq.seq_no)
-
             for ven in invoices_tax:
                 if ven.invoice_id.state not in ('draft','cancel'):
                     vendor_name.append(ven.invoice_id.partner_id.name)
             vendor_name = list(dict.fromkeys(vendor_name))
 
-            alpha_dict = {seq: [] for seq in sequence_list}
-            for seq in sequence_list:
-                for ven in vendor_name:
-                    for tax in invoices_tax:
-                        if ven == tax.invoice_id.partner_id.name and (seq == tax.seq_no) and (tax.invoice_id.state not in ('draft','cancel')):
-                            if (tax.invoice_id.date_invoice >= rec.date_from
-                                and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False):
-                                alpha_dict[seq].append([tax.seq_no,
-                                                        tax.invoice_id.partner_id.vat,
-                                                        tax.invoice_id.partner_id.name,
-                                                        tax.name,
-                                                        tax.nature_of_income,
-                                                        tax.base,
-                                                        abs(tax.percentage),
-                                                        tax.amount_total
-                                                         ])
-                                refund = self.env['account.invoice'].search([
-                                    ('origin','=',tax.invoice_id.number),
-                                    ('origin','!=',False)])
-                                if refund:
-                                    if (refund.origin == tax.invoice_id.number and
-                                        refund.partner_id.name == tax.invoice_id.partner_id.name):
-                                        alpha_dict[seq].append([tax.seq_no,
-                                                                tax.invoice_id.partner_id.vat,
-                                                                tax.invoice_id.partner_id.name,
-                                                                tax.name,
-                                                                tax.nature_of_income,
-                                                                '('+str(tax.base)+')',
-                                                                abs(tax.percentage),
-                                                                tax.amount_total
-                                                                 ])
+            alpha_dict = {seq: [] for seq in vendor_name}
+            for seq in vendor_name:
+                for tax in invoices_tax:
+                    if seq == tax.invoice_id.partner_id.name and (tax.invoice_id.state not in ('draft','cancel')):
+                        if (tax.invoice_id.date_invoice >= rec.date_from
+                            and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False
+                            and tax.nature_of_income != False):
+                            alpha_dict[seq].append([tax.seq_no,
+                                                    tax.invoice_id.partner_id.vat,
+                                                    tax.invoice_id.partner_id.name,
+                                                    tax.name,
+                                                    tax.nature_of_income,
+                                                    tax.base,
+                                                    abs(tax.percentage),
+                                                    tax.amount_total
+                                                     ])
+                            refund = self.env['account.invoice'].search([
+                                ('origin','=',tax.invoice_id.number),
+                                ('origin','!=',False)])
+                            if refund:
+                                if (refund.origin == tax.invoice_id.number and
+                                    refund.partner_id.name == tax.invoice_id.partner_id.name):
+                                    alpha_dict[seq].append([tax.seq_no,
+                                                            tax.invoice_id.partner_id.vat,
+                                                            tax.invoice_id.partner_id.name,
+                                                            tax.name,
+                                                            tax.nature_of_income,
+                                                            '('+str(tax.base)+')',
+                                                            abs(tax.percentage),
+                                                            tax.amount_total
+                                                             ])
             alpha_dict={key:value for key,value in alpha_dict.items() if value}
             alpha_list = [value for value in alpha_dict.values() if value]
             alpha_list_new = []
             for l in alpha_list:
                 for x in l:
                     alpha_list_new.append(x)
-
             for past,present,future in previous_and_next(alpha_list_new):
                 payee.write_row(row, column, present, content)
                 if isinstance(present[5],str):
@@ -169,13 +153,10 @@ class alphalistxlsxreport(models.AbstractModel):
                 grand_amount_tax += present[7]
                 row+=1
                 try:
-                    if present[0] != future[0]:
+                    if present[2] != future[2]:
                         payee.write(row, 1, "PERCENT TOTAL", bold)
                         payee.write(row, 5, total_base_tax, bold)
                         payee.write(row, 7, total_amount_tax, bold)
-                        noi_total_tax_dict[present[4]] = [total_base_tax,
-                                                          present[6],
-                                                          total_amount_tax,]
                         total_base_tax = 0
                         total_amount_tax = 0
                         row+=1
@@ -183,17 +164,6 @@ class alphalistxlsxreport(models.AbstractModel):
                     payee.write(row, 1, "PERCENT TOTAL", bold)
                     payee.write(row, 5, total_base_tax, bold)
                     payee.write(row, 7, total_amount_tax, bold)
-                    noi_total_tax_dict[present[4]] = [total_base_tax,
-                                                      present[6],
-                                                      total_amount_tax]
-                    grand_base_total = (total_base_tax_sup
-                                        + total_base_tax_ser
-                                        + total_base_tax_prof
-                                        + total_base_tax_bro)
-                    grand_amount_total = (total_wheld_tax_sup
-                                        + total_wheld_tax_ser
-                                        + total_wheld_tax_prof
-                                        + total_wheld_tax_bro)
                     payee.write(row + 1, 1, "GRAND TOTAL", bold)
                     payee.write(row + 1, 2, "--------->", bold)
                     payee.write(row + 1, 5, grand_base_tax, bold)
@@ -205,13 +175,80 @@ class alphalistxlsxreport(models.AbstractModel):
                     payee.write(row + 5, 4, "%", bold)
                     payee.write(row + 5, 5, "AMOUNT", bold)
                     new_row = row + 6
+            sequence_tax = rec.env['account.tax'].search([])
+            for sequence in sequence_tax:
+                if sequence.seq_no:
+                    sequence_list.append(sequence.seq_no)
+
+            alphalist_dict = {seq: [] for seq in sequence_list}
+            for sequence in sequence_list:
+                for tax in invoices_tax:
+                    if sequence == tax.seq_no and (tax.invoice_id.state not in ('draft','cancel')):
+                        if (tax.invoice_id.date_invoice >= rec.date_from
+                            and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False):
+                            alphalist_dict[sequence].append([tax.seq_no,
+                                                             tax.invoice_id.partner_id.vat,
+                                                             tax.invoice_id.partner_id.name,
+                                                             tax.name,
+                                                             tax.nature_of_income,
+                                                             tax.base,
+                                                             abs(tax.percentage),
+                                                             tax.amount_total
+                                                             ])
+                            refund = self.env['account.invoice'].search([
+                                ('origin','=',tax.invoice_id.number),
+                                ('origin','!=',False)])
+                            if refund:
+                                if (refund.origin == tax.invoice_id.number and
+                                    refund.partner_id.name == tax.invoice_id.partner_id.name):
+                                    alphalist_dict[sequence].append([tax.seq_no,
+                                                                     tax.invoice_id.partner_id.vat,
+                                                                     tax.invoice_id.partner_id.name,
+                                                                     tax.name,
+                                                                     tax.nature_of_income,
+                                                                     '('+str(tax.base)+')',
+                                                                     abs(tax.percentage),
+                                                                     tax.amount_total
+                                                                     ])
+            alphalist_dict={key:value for key,value in alphalist_dict.items() if value}
+            alphalist = [value for value in alphalist_dict.values() if value]
+            alphalist_new = []
+            for l in alphalist:
+                for x in l:
+                    alphalist_new.append(x)
+
+            total_base_tax_summary = 0
+            grand_base_tax_summary = 0
+            total_amount_tax_summary = 0
+            for past,present,future in previous_and_next(alphalist_new):
+                if isinstance(present[5],str):
+                    total_base_tax_summary = total_base_tax_summary - past[5]
+                    grand_base_tax_summary = grand_base_tax_summary - past[5]
+                else:
+                    total_base_tax_summary += present[5]
+                    grand_base_tax_summary += present[5]
+                total_amount_tax_summary += present[7]
+                total_amount_tax_summary += present[7]
+                row+=1
+                try:
+                    if present[0] != future[0]:
+                        noi_total_tax_dict[present[4]] = [total_base_tax_summary,
+                                                          total_amount_tax_summary,]
+                        total_base_tax_summary = 0
+                        total_amount_tax_summary = 0
+                        row+=1
+                except TypeError:
+                    noi_total_tax_dict[present[4]] = [total_base_tax_summary,
+                                                      total_amount_tax_summary]
+
                     sequence = rec.env['account.tax'].search([])
 
                     sequence_dict_summary = {}
                     sequence_list_summary = []
                     for seq in sequence:
                         if seq.seq_no:
-                            sequence_dict_summary[seq.name] = seq.nature_of_income
+                            sequence_dict_summary[seq.name] = [seq.nature_of_income,
+                                                               abs(seq.amount)]
 
                     for key,value in sequence_dict_summary.items():
                         temp = [key,value]
@@ -224,127 +261,10 @@ class alphalistxlsxreport(models.AbstractModel):
                     int_count = 1
                     for x in sequence_list_summary:
                         for total in noi_total_tax_list:
-                            if x[1] == total[0]:
+                            if x[int_count][0] == total[0]:
                                 payee.write(new_row, 1, x[0], content)
-                                payee.write(new_row, 2, x[1], content)
+                                payee.write(new_row, 2, x[int_count][0], content)
                                 payee.write(new_row, 3, total[int_count][0], bold)
-                                payee.write(new_row, 4, total[int_count][1], content)
-                                payee.write(new_row, 5, total[int_count][2], bold)
+                                payee.write(new_row, 4, x[int_count][1], content)
+                                payee.write(new_row, 5, total[int_count][1], bold)
                                 new_row += 1
-
-            # for ven in invoices_tax:
-            #     if ven.invoice_id.state not in ('draft','cancel'):
-            #         vendor_name.append(ven.invoice_id.partner_id.name)
-            # vendor_name = list(dict.fromkeys(vendor_name))
-            #
-            # alpha_dict = {seq: [] for seq in vendor_name}
-            # for seq in vendor_name:
-            #     for tax in invoices_tax:
-            #         if seq == tax.invoice_id.partner_id.name and (tax.invoice_id.state not in ('draft','cancel')):
-            #             if (tax.invoice_id.date_invoice >= rec.date_from
-            #                 and tax.invoice_id.date_invoice <= rec.date_to and tax.invoice_id.origin == False
-            #                 and tax.nature_of_income != False):
-            #                 alpha_dict[seq].append([tax.seq_no,
-            #                                         tax.invoice_id.partner_id.vat,
-            #                                         tax.invoice_id.partner_id.name,
-            #                                         tax.name,
-            #                                         tax.nature_of_income,
-            #                                         tax.base,
-            #                                         abs(tax.percentage),
-            #                                         tax.amount_total
-            #                                          ])
-            #                 refund = self.env['account.invoice'].search([
-            #                     ('origin','=',tax.invoice_id.number),
-            #                     ('origin','!=',False)])
-            #                 if refund:
-            #                     if (refund.origin == tax.invoice_id.number and
-            #                         refund.partner_id.name == tax.invoice_id.partner_id.name):
-            #                         alpha_dict[seq].append([tax.seq_no,
-            #                                                 tax.invoice_id.partner_id.vat,
-            #                                                 tax.invoice_id.partner_id.name,
-            #                                                 tax.name,
-            #                                                 tax.nature_of_income,
-            #                                                 '('+str(tax.base)+')',
-            #                                                 abs(tax.percentage),
-            #                                                 tax.amount_total
-            #                                                  ])
-            # alpha_dict={key:value for key,value in alpha_dict.items() if value}
-            # alpha_list = [value for value in alpha_dict.values() if value]
-            # alpha_list_new = []
-            # for l in alpha_list:
-            #     for x in l:
-            #         alpha_list_new.append(x)
-            # for past,present,future in previous_and_next(alpha_list_new):
-            #     payee.write_row(row, column, present, content)
-            #     if isinstance(present[5],str):
-            #         total_base_tax = total_base_tax - past[5]
-            #         grand_base_tax = grand_base_tax - past[5]
-            #     else:
-            #         total_base_tax += present[5]
-            #         grand_base_tax += present[5]
-            #     total_amount_tax += present[7]
-            #     grand_amount_tax += present[7]
-            #     row+=1
-            #     try:
-            #         if present[2] != future[2]:
-            #             payee.write(row, 1, "PERCENT TOTAL", bold)
-            #             payee.write(row, 5, total_base_tax, bold)
-            #             payee.write(row, 7, total_amount_tax, bold)
-            #             noi_total_tax_dict[present[4]] = [total_base_tax,
-            #                                               present[6],
-            #                                               total_amount_tax,]
-            #             total_base_tax = 0
-            #             total_amount_tax = 0
-            #             row+=1
-            #     except TypeError:
-            #         payee.write(row, 1, "PERCENT TOTAL", bold)
-            #         payee.write(row, 5, total_base_tax, bold)
-            #         payee.write(row, 7, total_amount_tax, bold)
-            #         noi_total_tax_dict[present[4]] = [total_base_tax,
-            #                                           present[6],
-            #                                           total_amount_tax]
-            #         grand_base_total = (total_base_tax_sup
-            #                             + total_base_tax_ser
-            #                             + total_base_tax_prof
-            #                             + total_base_tax_bro)
-            #         grand_amount_total = (total_wheld_tax_sup
-            #                             + total_wheld_tax_ser
-            #                             + total_wheld_tax_prof
-            #                             + total_wheld_tax_bro)
-            #         payee.write(row + 1, 1, "GRAND TOTAL", bold)
-            #         payee.write(row + 1, 2, "--------->", bold)
-            #         payee.write(row + 1, 5, grand_base_tax, bold)
-            #         payee.write(row + 1, 7, grand_amount_tax, bold)
-            #         payee.write(row + 4, 0, "SUMMARY:", bold)
-            #         payee.write(row + 5, 1, "ATC#", bold)
-            #         payee.write(row + 5, 2, "NATURE", bold)
-            #         payee.write(row + 5, 3, "BASE AMOUNT", bold)
-            #         payee.write(row + 5, 4, "%", bold)
-            #         payee.write(row + 5, 5, "AMOUNT", bold)
-            #         new_row = row + 6
-            #         sequence = rec.env['account.tax'].search([])
-            #
-            #         sequence_dict_summary = {}
-            #         sequence_list_summary = []
-            #         for seq in sequence:
-            #             if seq.seq_no:
-            #                 sequence_dict_summary[seq.name] = seq.nature_of_income
-            #
-            #         for key,value in sequence_dict_summary.items():
-            #             temp = [key,value]
-            #             sequence_list_summary.append(temp)
-            #
-            #         for key,value in noi_total_tax_dict.items():
-            #             temp = [key,value]
-            #             noi_total_tax_list.append(temp)
-            #
-            #         int_count = 1
-            #         for x in sequence_list_summary:
-            #             for total in noi_total_tax_list:
-            #                 if x[1] == total[0]:
-            #                     payee.write(new_row, 1, x[0], content)
-            #                     payee.write(new_row, 2, x[1], content)
-            #                     payee.write(new_row, 3, total[int_count][0], bold)
-            #                     payee.write(new_row, 4, total[int_count][1], content)
-            #                     payee.write(new_row, 5, total[int_count][2], bold)
-            #                     new_row += 1
