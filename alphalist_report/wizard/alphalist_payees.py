@@ -218,22 +218,19 @@ class alphalistxlsxreport(models.AbstractModel):
                     alphalist_new.append(x)
 
             total_base_tax_summary = 0
-            grand_base_tax_summary = 0
             total_amount_tax_summary = 0
             for past,present,future in previous_and_next(alphalist_new):
                 if isinstance(present[5],str):
                     total_base_tax_summary = total_base_tax_summary - past[5]
-                    grand_base_tax_summary = grand_base_tax_summary - past[5]
+                    total_amount_tax_summary = total_amount_tax_summary - past[7]
                 else:
                     total_base_tax_summary += present[5]
-                    grand_base_tax_summary += present[5]
-                total_amount_tax_summary += present[7]
-                total_amount_tax_summary += present[7]
+                    total_amount_tax_summary += present[7]
                 row+=1
                 try:
                     if present[0] != future[0]:
                         noi_total_tax_dict[present[4]] = [total_base_tax_summary,
-                                                          total_amount_tax_summary,]
+                                                          total_amount_tax_summary]
                         total_base_tax_summary = 0
                         total_amount_tax_summary = 0
                         row+=1
